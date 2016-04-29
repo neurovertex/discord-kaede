@@ -1,0 +1,27 @@
+{
+  "name": "discord-kaede",
+  "version": "0.0.1",
+  "description": "A bot for use with the Shift discord channel",
+  "main": "src/app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://nephrited@github.com/Nephrited/discord-kaede.git"
+  },
+  "keywords": [
+    "discord",
+    "bot"
+  ],
+  "author": "Nephrited",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/Nephrited/discord-kaede/issues"
+  },
+  "homepage": "https://github.com/Nephrited/discord-kaede#readme",
+  "dependencies": {
+    "discord.js": "^7.0.1",
+    "winston": "^2.2.0"
+  }
+}

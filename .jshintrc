@@ -1,0 +1,18 @@
+{
+  "undef": true,
+  "unused": true,
+  "bitwise": true,
+  "curly": true,
+  "eqeqeq": true,
+	"futurehostile": true,
+	"maxcomplexity": 3,
+	"maxdepth": 2,
+	"maxparams": 3,
+  "shadow": "inner",
+  "browser": true,
+  "jquery": false,
+  "indent": 1,
+  "esversion": 6,
+	"node": true,
+  "maxerr": null
+}
