@@ -9,6 +9,8 @@ winston.add(winston.transports.File, { filename: 'system.log' });
 
 var Kaede = new Discord.Client();
 
+var unusedQuotes = speech.quotes;
+
 Kaede.on('message', function(message) {
 	if (message.channel.recipient && message.author.id === '95602058723336192') {
 		adminCommand(message);
@@ -35,8 +37,13 @@ function adminCommand(message) {
 }
 
 function quote(channel) {
+
+	if (unusedQuotes.length >= speech.quotes.length) {
+		unusedQuotes = speech.quotes;
+	}
+
 	var randomQuote =
-		speech.quotes[Math.floor(Math.random() * speech.quotes.length)];
+		unusedQuotes.splice([Math.floor(Math.random() * unusedQuotes.length)],1);
 	Kaede.sendMessage(
 		channel,
 		randomQuote.text
