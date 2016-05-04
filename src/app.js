@@ -44,6 +44,7 @@ Kaede.on('message', function(message) {
 		roleGiver(message);
 	// } else if (/@\d+\s?(\+|-)/.test(message.content.toLowerCase())) {
 	// 	// Set to only + for now
+	// 	winston.debug('Karma Trigger');
 	// 	updateUserKarma(true,message.content,message.author.id);
 	}
 });
@@ -194,7 +195,7 @@ function updateUserKarma(isPos,toUser,fromUser) {
 function getUserKarma(message,userid,isOwn) {
 	var newMessage;
 
-	if (isNaN(userid)) {
+	if (isNaN(userid) || userid === '') {
 		Kaede.reply(
 			message,
 			speech.help.karma.nouser[Math.floor(Math.random() *
