@@ -31,14 +31,16 @@ Kaede.on('message', function(message) {
 		adminCommand(message, message.channel);
 	}
 
-	if (/!quote/.test(message.content)) {
+	if (/^!quote/.test(message.content)) {
 		quote(message.channel);
-	} else if (/!karma/.test(message.content)) {
+	} else if (/^!karma/.test(message.content)) {
 		if (/^!karma\s*$/.test(message.content)) {
 			getUserKarma(message,message.author.id,true);
 		} else {
 			getUserKarma(message,message.content.replace(/\D/g,''),false);
 		}
+	} else if (/^!requestaccess/.test(message.content)) {
+		roleGiver(message);
 	}
 });
 
@@ -58,6 +60,61 @@ Kaede.on('ready', function() {
 		}
 	});
 });
+
+function roleGiver(message) {
+	var newMessage;
+
+	if (/^!requestaccess\s*$/.test(message.content)) {
+		Kaede.reply(
+			message,
+			speech.help.requestAccess
+		).catch(err);
+	} else {
+		var request = message.content.split(/!requestaccess\s*/)[1];
+		switch (request.toLowerCase()) {
+			case 'nsfw': {
+				if (!Kaede.memberHasRole(message.author, '177343546221789185')) {
+					Kaede.addMemberToRole(message.author, '177343546221789185').catch(err);
+					newMessage = speech.roles.nsfw[Math.floor(Math.random() *
+						speech.roles.nsfw.length)].text;
+					//newMessage = 'access granted. You pervert.';
+				} else {
+					newMessage = 'you already have access to all the NSFW material. ' +
+						'How thirsty do you have to be to ask for more?';
+				}
+				break;
+			}
+			case 'eve': {
+				if (!Kaede.memberHasRole(message.author, '173741530224394240')) {
+					Kaede.addMemberToRole(message.author, '173741530224394240').catch(err);
+					newMessage = 'docking request...accepted. Did I get the voice right?';
+				} else {
+					newMessage = 'you are already registered as a capsuleer. ' +
+						'Go gank someone.';
+				}
+				break;
+			}
+			case 'developer': {
+				if (!Kaede.memberHasRole(message.author, '177030915954966528')) {
+					Kaede.addMemberToRole(message.author, '177030915954966528').catch(err);
+					newMessage = 'hasDevRole = true';
+				} else {
+					newMessage = 'var already set...or something. ' +
+						'You\'re already a developer.';
+				}
+				break;
+			}
+			default: {
+				newMessage = 'no such option! Try *!requestaccess*';
+			}
+		}
+
+		Kaede.reply(
+			message,
+			newMessage
+		).catch(err);
+	}
+}
 
 function connectDb(callback) {
 	mongo.connect(config.mongodb, function(err, db) {
@@ -85,6 +142,21 @@ function getUserDetails(userid) {
 		'Bot: ' + user.bot + '\n';
 
 	return details;
+}
+
+function getRoleDetails(message) {
+	var roles = Kaede.servers.get('id',config.serverid).roles;
+
+	var newMessage = 'There are the following server roles:\n\n';
+
+	roles.forEach(function(value) {
+		newMessage += '*' + value.name + '* - ' + value.id + '\n';
+	});
+
+	Kaede.sendMessage(
+		message.channel,
+		newMessage
+	).catch(err);
 }
 
 function getUserKarma(message,userid,isOwn) {
@@ -122,7 +194,7 @@ function adminCommand(message, channel) {
 			'165611042464858112',
 			newMessage
 		).catch(err);
-	} else if (message.content.match(/^getuserinfo:(.*)/)) {
+	} else if (message.content.match(/^!getuserinfo(.*)/)) {
 		var targetId = message.content
 			.substring(message.content.indexOf(':') + 1).trim().replace(/\D/g,'');
 		// Fetch ID Command Issued
@@ -133,6 +205,8 @@ function adminCommand(message, channel) {
 			channel,
 			newMessage
 		).catch(err);
+	} else if (message.content.match(/^!getroles(.*)/)) {
+		getRoleDetails(message);
 	}
 }
 
