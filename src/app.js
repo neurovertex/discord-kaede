@@ -42,9 +42,9 @@ Kaede.on('message', function(message) {
 		}
 	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
-	} else if (/@\d+\s?(\+|-)/.test(message.content.toLowerCase())) {
-		// Set to only + for now
-		updateUserKarma(true,message.content,message.author.id);
+	// } else if (/@\d+\s?(\+|-)/.test(message.content.toLowerCase())) {
+	// 	// Set to only + for now
+	// 	updateUserKarma(true,message.content,message.author.id);
 	}
 });
 
