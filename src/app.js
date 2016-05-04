@@ -194,6 +194,15 @@ function updateUserKarma(isPos,toUser,fromUser) {
 function getUserKarma(message,userid,isOwn) {
 	var newMessage;
 
+	if (isNaN(userid)) {
+		Kaede.reply(
+			message,
+			speech.help.karma.nouser[Math.floor(Math.random() *
+				speech.help.karma.nouser.length)].text
+		).catch(err);
+		return;
+	}
+
 	Database.collection('karma').find({userId: Long.fromString(userid)})
 	.toArray(function(error,result) {
 		if (!error && result.length > 0) {
