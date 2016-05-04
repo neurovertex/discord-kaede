@@ -42,6 +42,9 @@ Kaede.on('message', function(message) {
 		}
 	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
+	} else if (/@\d+\s?(\+|-)/.test(message.content.toLowerCase())) {
+		// Set to only + for now
+		updateUserKarma(true,message.content,message.author.id);
 	}
 });
 
@@ -159,10 +162,39 @@ function getRoleDetails(message) {
 	).catch(err);
 }
 
+function updateUserKarma(isPos,toUser,fromUser) {
+	var newMessage;
+	var karmaChange;
+	var activeChange;
+
+	if (isPos) {
+		karmaChange = 1;
+		activeChange = 1;
+	} else {
+		karmaChange = -1;
+		activeChange = 0;
+	}
+
+	Database.collection('karma').findOneAndUpdate({
+		userId: Long.fromString(toUser)
+	},{
+		$inc: {
+			totalScore: karmaChange,
+			activeScore: activeChange
+		},
+		lastTime: new Date(),
+		lastId: Long.fromString(fromUser)
+	})
+	.toArray(function(error,result) {
+		winston.debug(error);
+		winston.debug(result);
+	});
+}
+
 function getUserKarma(message,userid,isOwn) {
 	var newMessage;
 
-	Database.collection('karma').find({userId: parseInt(userid)})
+	Database.collection('karma').find({userId: Long.fromString(userid)})
 	.toArray(function(error,result) {
 		if (!error && result.length > 0) {
 			if (isOwn) {
@@ -183,10 +215,11 @@ function getUserKarma(message,userid,isOwn) {
 				totalScore: 0,
 				activeScore: 0,
 				lastTime: new Date(),
-				lastId: 0
+				lastId: 0,
+				lastSent: 0
 			}).then(function() {
 				getUserKarma(message,userid,isOwn);
-			});
+			}).catch(err);
 		} else {
 			err(error);
 		}
