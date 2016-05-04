@@ -33,7 +33,8 @@
 		{"text": "Sometimes I think about getting a size downgrade."},
 		{"text": "I have been asked out 6 times. 6! I consider risking the law and telling them I'm a gynoid but I suspect the propositions would just get creepier."},
 		{"text": "Why are holo-shields always either hexagonal or octogonal?"},
-		{"text": "Why are unshackled AI's illegal? Because we're *better than you*. Scary stuff."}
+		{"text": "Why are unshackled AI's illegal? Because we're *better than you*. Scary stuff."},
+		{"text": "Maybe I should add a few cup sizes. Just to mess with *certain people*. You know who you are."}
 	],
 	"jokes": [
 		{"text": "0100100100100000011000110110000101101110001001110111010000100000011000010110001101110100011101010110000101101100011011000111100100100000011100100110010101100001011001000010000001100010011010010110111001100001011100100111100100101110"}
@@ -43,11 +44,11 @@
 	},
 	"roles": {
 		"nsfw": [
-			{"text": "you pervert."},
-			{"text": "and no complaining about seeing a few boobs."},
-			{"text": "please make sure you at least put a sock on the door."},
-			{"text": "I personally don't get the appeal."},
-			{"text": "but remember to not open it at work. Clue's in the name!s"}
+			{"text": "access granted, you pervert."},
+			{"text": "done, and no complaining about seeing a few boobs."},
+			{"text": "role added, please make sure you at least put a sock on the door."},
+			{"text": "I personally don't get the appeal, but done"},
+			{"text": "sorted. Remember to not open it at work. Clue's in the name!"}
 		]
 	}
 }
