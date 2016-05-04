@@ -15,6 +15,7 @@
 var Discord	= require('discord.js');
 var winston = require('winston');
 var mongo		= require('mongodb').MongoClient;
+var Long		= require('mongodb').Long;
 var config	= require('./res/config.json');
 var speech	= require('./res/speech.json');
 
@@ -31,15 +32,15 @@ Kaede.on('message', function(message) {
 		adminCommand(message, message.channel);
 	}
 
-	if (/^!quote/.test(message.content)) {
+	if (/^!quote/.test(message.content.toLowerCase())) {
 		quote(message.channel);
-	} else if (/^!karma/.test(message.content)) {
-		if (/^!karma\s*$/.test(message.content)) {
+	} else if (/^!karma/.test(message.content.toLowerCase())) {
+		if (/^!karma\s*$/.test(message.content.toLowerCase())) {
 			getUserKarma(message,message.author.id,true);
 		} else {
-			getUserKarma(message,message.content.replace(/\D/g,''),false);
+			getUserKarma(message,message.content.toLowerCase().replace(/\D/g,''),false);
 		}
-	} else if (/^!requestaccess/.test(message.content)) {
+	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
 	}
 });
@@ -77,7 +78,6 @@ function roleGiver(message) {
 					Kaede.addMemberToRole(message.author, '177343546221789185').catch(err);
 					newMessage = speech.roles.nsfw[Math.floor(Math.random() *
 						speech.roles.nsfw.length)].text;
-					//newMessage = 'access granted. You pervert.';
 				} else {
 					newMessage = 'you already have access to all the NSFW material. ' +
 						'How thirsty do you have to be to ask for more?';
@@ -177,6 +177,16 @@ function getUserKarma(message,userid,isOwn) {
 				message,
 				newMessage
 			).catch(err);
+		} else if (result.length === 0) {
+			Database.collection('karma').insertOne({
+				userId: Long.fromString(userid),
+				totalScore: 0,
+				activeScore: 0,
+				lastTime: new Date(),
+				lastId: 0
+			}).then(function() {
+				getUserKarma(message,userid,isOwn);
+			});
 		} else {
 			err(error);
 		}
