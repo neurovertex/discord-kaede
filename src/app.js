@@ -22,7 +22,10 @@ var speech	= require('./res/speech.json');
 winston.level = 'debug';
 winston.add(winston.transports.File, { filename: 'system.log' });
 
-var Kaede = new Discord.Client({forceFetchUsers: true});
+var Kaede = new Discord.Client({
+	forceFetchUsers: true,
+	autoReconnect: true
+});
 var Database;
 
 var unusedQuotes = speech.quotes;
@@ -42,10 +45,16 @@ Kaede.on('message', function(message) {
 		}
 	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
-	// } else if (/@\d+\s?(\+|-)/.test(message.content.toLowerCase())) {
-	// 	// Set to only + for now
-	// 	winston.debug('Karma Trigger');
-	// 	updateUserKarma(true,message.content,message.author.id);
+	} else if (/<@!?\d+>\s?(\+|-)/.test(message.content.toLowerCase())) {
+		// TODO - Fix Karma
+		// Disabled Karma actions for the time being while they're worked on
+		var pos;
+		if (message.content.split(/<@\d+>\s?/)[1] === '+') {
+			pos = true;
+		} else {
+			pos = false;
+		}
+		// updateUserKarma(pos,message.content.replace(/\D/g,''),message);
 	}
 });
 
@@ -57,10 +66,10 @@ Kaede.on('ready', function() {
 				'Program Loaded'
 			).catch(err);
 		} else {
-			winston.error(err);
+			winston.error(error);
 			Kaede.sendMessage(
 				'177030781254762496',
-				'Program Error, check my console!'
+				'Program error, check my console!'
 			).catch(err);
 		}
 	});
@@ -80,8 +89,7 @@ function roleGiver(message) {
 			case 'nsfw': {
 				if (!Kaede.memberHasRole(message.author, '177343546221789185')) {
 					Kaede.addMemberToRole(message.author, '177343546221789185').catch(err);
-					newMessage = speech.roles.nsfw[Math.floor(Math.random() *
-						speech.roles.nsfw.length)].text;
+					newMessage = randomQuote(speech.roles.nsfw);
 				} else {
 					newMessage = 'you already have access to all the NSFW material. ' +
 						'How thirsty do you have to be to ask for more?';
@@ -163,10 +171,20 @@ function getRoleDetails(message) {
 	).catch(err);
 }
 
-function updateUserKarma(isPos,toUser,fromUser) {
+function updateUserKarma(isPos,toUser,message) {
 	var newMessage;
 	var karmaChange;
 	var activeChange;
+	var fromUser = message.author.id;
+
+	if (toUser === fromUser) {
+		newMessage = randomQuote(speech.karma.sameuser);
+		Kaede.reply(
+			message,
+			newMessage
+		).catch(err);
+		return;
+	}
 
 	if (isPos) {
 		karmaChange = 1;
@@ -176,20 +194,48 @@ function updateUserKarma(isPos,toUser,fromUser) {
 		activeChange = 0;
 	}
 
-	Database.collection('karma').findOneAndUpdate({
-		userId: Long.fromString(toUser)
-	},{
-		$inc: {
-			totalScore: karmaChange,
-			activeScore: activeChange
-		},
-		lastTime: new Date(),
-		lastId: Long.fromString(fromUser)
-	})
-	.toArray(function(error,result) {
-		winston.debug(error);
-		winston.debug(result);
-	});
+	checkFromUserEligible(err,karmaUpdate);
+
+	function checkFromUserEligible(error, callback) {
+		Database.collection('karma').findOne({
+			userId: Long.fromString(fromUser)
+		}).then(function(result) {
+			if (result.lastId.toInt() === toUser) {
+				callback(false,false,updateFromUser);
+			} else {
+				callback(false,true,updateFromUser);
+			}
+		}).catch(error);
+	}
+
+	function updateFromUser() {
+
+	}
+
+	function karmaUpdate(error,isEligible,callback) {
+		if (!isEligible) {
+			callback(false);
+		} else {
+			Database.collection('karma').findOneAndUpdate({
+				userId: Long.fromString(toUser)
+			},{
+				$inc: {
+					totalScore: karmaChange,
+					activeScore: activeChange
+				},
+				$set: {
+					lastTime: new Date(),
+					lastId: Long.fromString(fromUser)
+				}
+			}).then(function(result) {
+				winston.debug(result);
+			}).catch(error);
+		}
+	}
+}
+
+function randomQuote(quoteArray) {
+	return quoteArray[Math.floor(Math.random() * quoteArray.length)].text;
 }
 
 function getUserKarma(message,userid,isOwn) {
@@ -198,8 +244,7 @@ function getUserKarma(message,userid,isOwn) {
 	if (isNaN(userid) || userid === '') {
 		Kaede.reply(
 			message,
-			speech.help.karma.nouser[Math.floor(Math.random() *
-				speech.help.karma.nouser.length)].text
+			randomQuote(speech.karma.nouser)
 		).catch(err);
 		return;
 	}
