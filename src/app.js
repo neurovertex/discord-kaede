@@ -19,7 +19,7 @@ var Long		= require('mongodb').Long;
 var config	= require('./res/config.json');
 var speech	= require('./res/speech.json');
 
-winston.level = 'debug';
+winston.level = 'error';
 winston.add(winston.transports.File, { filename: 'system.log' });
 
 var Kaede = new Discord.Client({
