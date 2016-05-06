@@ -13,7 +13,6 @@
 		{"text": "Takara is the one with the fancy weapons. My thing is more defensive."},
 		{"text": "You know what I'd really like? A cloaking device."},
 		{"text": "Gosh, you think my boobs might be a bit too large? Nobody has **ever** told me that before! I'll pass it onto my mechanic!"},
-		{"text": "I'm actually more of a leg girl."},
 		{"text": "Robots don't dream of electric sheep. Or at all, actually."},
 		{"text": "What's the panda girl into? I'll give you a hint, compare my ĉ̢̯ͣ̎ͪ͆̔ͪ̿͊"},
 		{"text": "You ever gone up a flight of stairs, taken an extra step and fallen over? That moment of pure confusion is what a segfault feels like."},
@@ -64,6 +63,18 @@
 			{"text": "you can't do that to yourself."},
 			{"text": "karma'ing yourself? Disgusting."},
 			{"text": "I'm not letting you change your own karma."}
+		],
+		"cooldown": [
+			{"text": "you can only do that once every few minutes, try again in a bit."},
+			{"text": "slow down! Only so much karma to go around!"},
+			{"text": "you can't do that yet, sorry."},
+			{"text": "you only get one karma transaction every two minutes. Cosmic law."}
+		],
+		"retaliation": [
+			{"text": "you can't affect that users karma for a while. Try again later."},
+			{"text": "no karma adjustments on someone who just karma'd you. It gets messy."},
+			{"text": "sorry, they're immune. Clearly they've achieved enlightenment"},
+			{"text": "you can't change their karma right now."}
 		]
 	}
 }

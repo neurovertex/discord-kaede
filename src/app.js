@@ -28,7 +28,7 @@ var Kaede = new Discord.Client({
 });
 var Database;
 
-var unusedQuotes = speech.quotes;
+var unusedQuotes = JSON.parse(JSON.stringify(speech.quotes));
 
 Kaede.on('message', function(message) {
 	if (message.author.id === '95602058723336192') {
@@ -39,22 +39,28 @@ Kaede.on('message', function(message) {
 		quote(message.channel);
 	} else if (/^!karma/.test(message.content.toLowerCase())) {
 		if (/^!karma\s*$/.test(message.content.toLowerCase())) {
-			getUserKarma(message,message.author.id,true);
+			getUserKarma(
+				message,message.author.id,
+				true
+			);
 		} else {
-			getUserKarma(message,message.content.toLowerCase().replace(/\D/g,''),false);
+			getUserKarma(
+				message,message.content.toLowerCase().replace(/\D/g,''),
+				false
+			);
 		}
 	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
-	} else if (/<@!?\d+>\s?(\+|-)/.test(message.content.toLowerCase())) {
+	} else if (/^<@!?\d+>\s*(\+|-)$/.test(message.content.toLowerCase())) {
 		// TODO - Fix Karma
 		// Disabled Karma actions for the time being while they're worked on
 		var pos;
-		if (message.content.split(/<@\d+>\s?/)[1] === '+') {
+		if (message.content.split(/<@!?\d+>\s*/)[1] === '+') {
 			pos = true;
 		} else {
 			pos = false;
 		}
-		// updateUserKarma(pos,message.content.replace(/\D/g,''),message);
+		updateUserKarma(pos,message.content.replace(/\D/g,''),message);
 	}
 });
 
@@ -199,22 +205,64 @@ function updateUserKarma(isPos,toUser,message) {
 	function checkFromUserEligible(error, callback) {
 		Database.collection('karma').findOne({
 			userId: Long.fromString(fromUser)
+		},{
+			lastId: 1,
+			lastSent: 1,
+			lastTime: 1
 		}).then(function(result) {
-			if (result.lastId.toInt() === toUser) {
-				callback(false,false,updateFromUser);
+
+			var retTime = new Date();
+			retTime.setMinutes(retTime.getMinutes() - 10);
+			var cooldownTimer = new Date();
+			cooldownTimer.setMinutes(cooldownTimer.getMinutes() - 2);
+
+			if (
+				Long(result.lastId.low_, result.lastId.high_)
+				.equals(Long.fromString(toUser)) &&
+				result.lastTime.getTime() >= retTime.getTime()
+			) {
+				newMessage = randomQuote(speech.karma.retaliation);
+				callback(newMessage,false,updateFromUser);
+			} else if (
+				result.lastSent && result.lastSent.getTime() >= cooldownTimer.getTime()
+			) {
+				newMessage = randomQuote(speech.karma.cooldown);
+				callback(newMessage,false,updateFromUser);
 			} else {
 				callback(false,true,updateFromUser);
 			}
 		}).catch(error);
 	}
 
-	function updateFromUser() {
+	function updateFromUser(error,validAttempt) {
+		if (!validAttempt) {
+			newMessage = error;
+			Kaede.reply(
+				message,
+				newMessage
+			).catch(err);
+		} else {
+			newMessage = 'User karma updated';
+
+			Database.collection('karma').findOneAndUpdate({
+				userId: Long.fromString(fromUser)
+			},{
+				$set: {
+					lastSent: new Date()
+				}
+			}).then(function() {
+				Kaede.reply(
+					message,
+					newMessage
+				).catch(err);
+			});
+		}
 
 	}
 
 	function karmaUpdate(error,isEligible,callback) {
 		if (!isEligible) {
-			callback(false);
+			callback(error,false);
 		} else {
 			Database.collection('karma').findOneAndUpdate({
 				userId: Long.fromString(toUser)
@@ -228,7 +276,21 @@ function updateUserKarma(isPos,toUser,message) {
 					lastId: Long.fromString(fromUser)
 				}
 			}).then(function(result) {
-				winston.debug(result);
+				winston.debug(JSON.stringify(result));
+				if (result.lastErrorObject.updatedExisting === false) {
+					Database.collection('karma').insertOne({
+						userId: Long.fromString(toUser),
+						totalScore: 0,
+						activeScore: 0,
+						lastTime: new Date(),
+						lastId: 0,
+						lastSent: 0
+					}).then(function() {
+						karmaUpdate(error,isEligible,callback);
+					}).catch(err);
+				} else {
+					callback(false,true);
+				}
 			}).catch(error);
 		}
 	}
@@ -310,10 +372,6 @@ function adminCommand(message, channel) {
 
 function quote(channel) {
 
-	if (unusedQuotes.length === 0) {
-		unusedQuotes = speech.quotes;
-	}
-
 	var randomQuote =
 		unusedQuotes.splice(Math.floor(Math.random() * unusedQuotes.length),1);
 
@@ -321,6 +379,10 @@ function quote(channel) {
 		channel,
 		randomQuote[0].text
 	).catch(err);
+
+	if (unusedQuotes.length === 0) {
+		unusedQuotes = JSON.parse(JSON.stringify(speech.quotes));
+	}
 }
 
 function err(error) {
