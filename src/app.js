@@ -242,7 +242,11 @@ function updateUserKarma(isPos,toUser,message) {
 				newMessage
 			).catch(err);
 		} else {
-			newMessage = 'User karma updated';
+			if (isPos) {
+				newMessage = randomQuote(speech.karma.positive);
+			} else {
+				newMessage = randomQuote(speech.karma.negative);
+			}
 
 			Database.collection('karma').findOneAndUpdate({
 				userId: Long.fromString(fromUser)

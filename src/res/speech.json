@@ -75,6 +75,20 @@
 			{"text": "no karma adjustments on someone who just karma'd you. It gets messy."},
 			{"text": "sorry, they're immune. Clearly they've achieved enlightenment"},
 			{"text": "you can't change their karma right now."}
+		],
+		"positive": [
+			{"text": "+1 karma granted. The internet equivalent of finding a penny on the floor."},
+			{"text": "+1 karma has been bestowed, and a heavenly chorus is in the background."},
+			{"text": "+1 karma, done and done."},
+			{"text": "1 karma on it's way."},
+			{"text": "+1 karma, coming right up!"},
+			{"text": "+1 karma delivered, along with a sickeningly warm fuzzy feeling."},
+		],
+		"negative": [
+			{"text": "1 karma removed, such a shame"},
+			{"text": "I'll take their karma and...remove 1."},
+			{"text": "-1 karma. That'll show them."},
+			{"text": "-1 karma, +1 salt!"}
 		]
 	}
 }
