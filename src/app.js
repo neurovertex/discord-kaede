@@ -51,11 +51,11 @@ Kaede.on('message', function(message) {
 		}
 	} else if (/^!requestaccess/.test(message.content.toLowerCase())) {
 		roleGiver(message);
-	} else if (/^<@!?\d+>\s*(\+|-)$/.test(message.content.toLowerCase())) {
+	} else if (/^<@!?\d+>\s*(\+|-)$|^(\+|-)\s*<@!?\d+>$/.test(message.content.toLowerCase())) {
 		// TODO - Fix Karma
 		// Disabled Karma actions for the time being while they're worked on
 		var pos;
-		if (message.content.split(/<@!?\d+>\s*/)[1] === '+') {
+		if (message.content.replace(/[^-+]/g,'') === '+') {
 			pos = true;
 		} else {
 			pos = false;
